@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Suitmedia</title>
+    <link rel="stylesheet" href="stylepage.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" charset="utf-8"></script>
+  </head>
+  <script type="text/javascript">
+    function getPageList(totalPages, page, maxLength){
+      function range(start, end){
+        return Array.from(Array(end - start + 1), (_, i) => i + start);
+      }
+    
+      var sideWidth = maxLength < 9 ? 1 : 2;
+      var leftWidth = (maxLength - sideWidth * 2 - 3) >> 1;
+      var rightWidth = (maxLength - sideWidth * 2 - 3) >> 1;
+    
+      if(totalPages <= maxLength){
+        return range(1, totalPages);
+      }
+    
+      if(page <= maxLength - sideWidth - 1 - rightWidth){
+        return range(1, maxLength - sideWidth - 1).concat(0, range(totalPages - sideWidth + 1, totalPages));
+      }
+    
+      if(page >= totalPages - sideWidth - 1 - rightWidth){
+        return range(1, sideWidth).concat(0, range(totalPages- sideWidth - 1 - rightWidth - leftWidth, totalPages));
+      }
+    
+      return range(1, sideWidth).concat(0, range(page - leftWidth, page + rightWidth), 0, range(totalPages - sideWidth + 1, totalPages));
+    }
+    
+    $(function(){
+      var numberOfItems = $(".card-content .card").length;
+      var limitPerPage = 8; //How many card items visible per a page
+      var totalPages = Math.ceil(numberOfItems / limitPerPage);
+      var paginationSize = 7; //How many page elements visible in the pagination
+      var currentPage;
+    function sortCards() {
+    var sortBy = $("#sortSelect").val();
+    $(".card-content .card").sort(function(a, b) {
+      var aTimestamp = $(a).data("timestamp");
+      var bTimestamp = $(b).data("timestamp");
+
+      if (sortBy === "newest") {
+        return new Date(bTimestamp) - new Date(aTimestamp);
+      } else if (sortBy === "oldest") {
+        return new Date(aTimestamp) - new Date(bTimestamp);
+      }
+      $(".card-content").empty();
+    }).appendTo(".card-content");
+    
+    // Reinitialize pagination after sorting
+    showPage(1);
+  }
+      function showPage(whichPage){
+        if(whichPage < 1 || whichPage > totalPages) return false;
+    
+        currentPage = whichPage;
+    
+        $(".card-content .card").hide().slice((currentPage - 1) * limitPerPage, currentPage * limitPerPage).show();
+    
+        $(".pagination li").slice(1, -1).remove();
+    
+        getPageList(totalPages, currentPage, paginationSize).forEach(item => {
+          $("<li>").addClass("page-item").addClass(item ? "current-page" : "dots")
+          .toggleClass("active", item === currentPage).append($("<a>").addClass("page-link")
+          .attr({href: "javascript:void(0)"}).text(item || "...")).insertBefore(".next-page");
+        });
+    
+        $(".previous-page").toggleClass("disable", currentPage === 1);
+        $(".next-page").toggleClass("disable", currentPage === totalPages);
+        return true;
+      }
+    
+      $(".pagination").append(
+        $("<li>").addClass("page-item").addClass("previous-page").append($("<a>").addClass("page-link").attr({href: "javascript:void(0)"}).text("Prev")),
+        $("<li>").addClass("page-item").addClass("next-page").append($("<a>").addClass("page-link").attr({href: "javascript:void(0)"}).text("Next"))
+      );
+    
+      $(".card-content").show();
+      showPage(1);
+    
+      $(document).on("click", ".pagination li.current-page:not(.active)", function(){
+        return showPage(+$(this).text());
+      });
+    
+      $(".next-page").on("click", function(){
+        return showPage(currentPage + 1);
+      });
+    
+      $(".previous-page").on("click", function(){
+        return showPage(currentPage - 1);
+      });
+      $(document).on("change", "#sortSelect", function() {
+    sortCards();
+    });
+})
+    </script>
+      <script type="text/javascript">
+        $(function () {
+          var previousScroll = 0;
+      
+          $(window).scroll(function () {
+            var currentScroll = $(this).scrollTop();
+      
+            // Scroll down
+            if (currentScroll > previousScroll) {
+              $(".container-navbar").addClass("hidden");
+            } else {
+              // Scroll up
+              $(".container-navbar").removeClass("hidden");
+            }
+      
+            previousScroll = currentScroll;
+          });
+        });
+      </script>
+  <body>
+  
+        <!--NAVIGATION BAR  -->
+        <div class="container-navbar">
+                <img src="suitmedia.png" class="split">
+                    <a href="work.html" class="a-navbar">Work</a>
+                    <a href="about.html" class="a-navbar">About</a>
+                    <a href="services.html" class="a-navbar">Services</a>
+                    <a href="ideas.html" class="a-navbar">Ideas</a>
+                    <a href="careers.html" class="a-navbar">Careers</a>
+                    <a href="contact.html" class="a-navbar">Contact</a>
+        </div>
+        <!-- NABIGATION BAR SELESAI  -->
+    <div>
+
+    </div>  
+    <div class="idea-image">
+        <img src="papers.jpg" alt="paper" width="100%" height="300">
+        <h1 class="image-text1">Ideas</h1>
+        <p class="image-text2">Where all our great things begin</p>  
+    </div>
+
+    <div class="select">
+        <label for="sortSelect">Sort By:</label>
+        <select id="sortSelect" onchange="sortCards()">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+        </select>
+    </div>
+    <div class="select">
+      <label for="perpage">Show per page: </label>
+      <select>
+          <option value="10">10</option>
+          <option value="30">30</option>
+          <option value="50">50</option>
+      </select>
+  </div>
+    <div class="container">
+
+      <div class="card-content" style="display: none">
+        <div class="card" data-timestamp="2023-12-20">
+          <div class="card-image"><img src="image1.jpg" alt=""></div>
+          <div class="card-info">
+            <p>20 DESEMBER 2023</p>
+            <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+          </div>
+        </div>
+        <div class="card-content">
+            <div class="card" data-timestamp="2023-12-05">
+              <div class="card-image"><img src="image2.jpg" alt=""></div>
+              <div class="card-info">
+                <p>5 DESEMBER 2023</p>
+                <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+              </div>
+            </div>
+            <div class="card" data-timestamp="2023-12-06">
+              <div class="card-image"><img src="image1.jpg" alt=""></div>
+              <div class="card-info">
+                <p>6 DESEMBER 2023</p>
+                <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+              </div>
+            </div>
+            <div class="card" data-timestamp="2023-12-07">
+              <div class="card-image"><img src="image2.jpg" alt=""></div>
+              <div class="card-info">
+                <p>7 DESEMBER 2023</p>
+                <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+              </div>
+            </div>
+            <div class="card" data-timestamp="2023-12-08">
+              <div class="card-image"><img src="image1.jpg" alt=""></div>
+              <div class="card-info">
+                <p>8 DESEMBER 2023</p>
+                <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+              </div>
+            </div>
+            <div class="card" data-timestamp="2023-12-09">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>9 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-10">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>10 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-11">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>11 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-12">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>12 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-13">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>13 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-14">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>14 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-15">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>15 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-16">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>16 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-16">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>16 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-17">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>17 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-18">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>18 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-25">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>25 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-12">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>12 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-22">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>22 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-14">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>14 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-17">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>17 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-23">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>23 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-24">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>24 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-2">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>2 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-2">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>2 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-16">
+                <div class="card-image"><img src="image2.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>16 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+              <div class="card" data-timestamp="2023-12-16">
+                <div class="card-image"><img src="image1.jpg" alt=""></div>
+                <div class="card-info">
+                  <p>16 DESEMBER 2023</p>
+                  <h4 class="title">Kenali Tingkatan Influencers berdasarkan Jumlah Followers</h4>
+                </div>
+              </div>
+        <div class="pagination">
+          <li class="page-item previous-page disable"><a class="page-link" href="#">Prev</a></li>
+          <li class="page-item current-page active"><a class="page-link" href="#">1</a></li>
+          <li class="page-item dots"><a class="page-link" href="#">...</a></li>
+          <li class="page-item current-page"><a class="page-link" href="#">5</a></li>
+          <li class="page-item current-page"><a class="page-link" href="#">6</a></li>
+          <li class="page-item dots"><a class="page-link" href="#">...</a></li>
+          <li class="page-item current-page"><a class="page-link" href="#">10</a></li>
+          <li class="page-item next-page"><a class="page-link" href="#">Next</a></li>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
